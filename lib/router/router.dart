@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:write_sdcard_sample/home_screen.dart';
 import 'package:write_sdcard_sample/screen/doc_man/screen.dart';
+import 'package:write_sdcard_sample/screen/file_picker/screen.dart';
+import 'package:write_sdcard_sample/screen/home/screen.dart';
 
 part 'router.g.dart';
 
@@ -33,6 +34,17 @@ final _goRouter = GoRouter(
         return MaterialPage(
           key: state.pageKey,
           child: const DocManScreen(),
+        );
+      },
+    ),
+    // file_picker
+    GoRoute(
+      path: FilePickerScreen.path,
+      name: FilePickerScreen.name,
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const FilePickerScreen(),
         );
       },
     ),

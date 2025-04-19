@@ -1,4 +1,4 @@
-part of 'home_screen.dart';
+part of 'screen.dart';
 
 /// ダメだったやつ
 extension on HomeScreen {
