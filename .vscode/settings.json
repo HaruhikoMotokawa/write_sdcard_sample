@@ -1,3 +1,7 @@
 {
-  "dart.flutterSdkPath": ".fvm/versions/3.29.0"
+  "dart.flutterSdkPath": ".fvm/versions/3.29.0",
+  "cSpell.words": [
+    "docman",
+    "sdcard"
+  ]
 }
