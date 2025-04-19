@@ -1,4 +1,4 @@
-part of 'home_screen.dart';
+import 'package:flutter/material.dart';
 
 Future<void> showAppDialog(
   BuildContext context, {
