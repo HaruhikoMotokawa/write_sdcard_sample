@@ -34,21 +34,22 @@ class FilePickerScreen extends HookWidget {
               ),
               const Divider(),
               ElevatedButton(
-                onPressed: () => _selectDirectoryAndCreateFile(context),
+                onPressed: () => _selectDirectory(context, directoryPath),
+                child: const Text('Select Directory'),
+              ),
+              ElevatedButton(
+                onPressed: () =>
+                    _selectDirectoryAndCreateFile(context, directoryPath),
                 child: const Text('Select Directory and Create File'),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('Create Sub Directory'),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('Read example.txt'),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('Delete NewFolder'),
-              ),
+              // ElevatedButton(
+              //   onPressed: () {},
+              //   child: const Text('Read example.txt'),
+              // ),
+              // ElevatedButton(
+              //   onPressed: () {},
+              //   child: const Text('Delete NewFolder'),
+              // ),
             ],
           ),
         ),
@@ -58,17 +59,48 @@ class FilePickerScreen extends HookWidget {
 }
 
 extension on FilePickerScreen {
-  Future<void> _selectDirectoryAndCreateFile(
+  Future<void> _selectDirectory(
     BuildContext context,
+    ValueNotifier<String?> directoryPath,
   ) async {
     final filePicker = FilePicker.platform;
     // Get the external storage directory
-    final directoryPath = await filePicker.getDirectoryPath(
+    final path = await filePicker.getDirectoryPath(
       dialogTitle: 'Select Directory',
     );
 
     if (!context.mounted) return;
-    if (directoryPath == null) {
+    if (path == null) {
+      await showAppDialog(
+        context,
+        title: 'Error',
+        content: 'No directory selected',
+      );
+      return;
+    }
+    final fixedPath = _fixDuplicatedEndingInPath(path);
+    directoryPath.value = fixedPath;
+
+    await showAppDialog(
+      context,
+      title: 'Success',
+      content: 'Directory selected successfully!'
+          '\n fixedPath $fixedPath, path $path',
+    );
+  }
+
+  Future<void> _selectDirectoryAndCreateFile(
+    BuildContext context,
+    ValueNotifier<String?> directoryPath,
+  ) async {
+    final filePicker = FilePicker.platform;
+    // Get the external storage directory
+    final path = await filePicker.getDirectoryPath(
+      dialogTitle: 'Select Directory',
+    );
+
+    if (!context.mounted) return;
+    if (path == null) {
       await showAppDialog(
         context,
         title: 'Error',
@@ -77,13 +109,15 @@ extension on FilePickerScreen {
       return;
     }
     try {
-      final fixedPath = _fixDuplicatedEndingInPath(directoryPath);
+      final fixedPath = _fixDuplicatedEndingInPath(path);
       const localFileSystem = LocalFileSystem();
       localFileSystem
           .directory(fixedPath)
           .childFile('example.txt')
           .writeAsStringSync('Hello, SD Card!');
       if (!context.mounted) return;
+
+      directoryPath.value = fixedPath;
       await showAppDialog(
         context,
         title: 'Success',
