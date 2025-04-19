@@ -39,11 +39,11 @@ class HomeScreen extends HookWidget {
               ),
               const Divider(),
               ElevatedButton(
-                onPressed: () => _onTap(context, documentFile),
+                onPressed: () => _selectDirectory(context, documentFile),
                 child: const Text('DocMan'),
               ),
               ElevatedButton(
-                onPressed: () => _createSubDir(
+                onPressed: () => _createSubDirAndFile(
                   context,
                   documentFile.value?.uri ?? '',
                 ),
@@ -72,7 +72,7 @@ class HomeScreen extends HookWidget {
 }
 
 extension on HomeScreen {
-  Future<void> _onTap(
+  Future<void> _selectDirectory(
     BuildContext context,
     ValueNotifier<DocumentFile?> documentFile,
   ) async {
@@ -95,7 +95,7 @@ extension on HomeScreen {
     }
   }
 
-  Future<void> _createSubDir(BuildContext context, String path) async {
+  Future<void> _createSubDirAndFile(BuildContext context, String path) async {
     if (path.isEmpty) {
       if (!context.mounted) return;
       await showAppDialog(context, title: 'エラー', content: '保存先が選択されていません');
@@ -111,7 +111,6 @@ extension on HomeScreen {
         return;
       }
 
-      // すでに同名フォルダがある場合はそのまま返る
       final newDir = await parentDir.createDirectory('NewFolder');
 
       if (newDir == null) {
@@ -130,7 +129,7 @@ extension on HomeScreen {
       await showAppDialog(
         context,
         title: '作成成功',
-        content: 'フォルダを作成しました:\n${newDir.uri}',
+        content: 'NewFolder と example.txt を作成しました',
       );
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
