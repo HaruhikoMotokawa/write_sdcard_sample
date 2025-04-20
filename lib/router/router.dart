@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:write_sdcard_sample/screen/doc_man/screen.dart';
 import 'package:write_sdcard_sample/screen/file_picker/screen.dart';
 import 'package:write_sdcard_sample/screen/home/screen.dart';
+import 'package:write_sdcard_sample/screen/path_provider/screen.dart';
 
 part 'router.g.dart';
 
@@ -23,6 +24,17 @@ final _goRouter = GoRouter(
         return MaterialPage(
           key: state.pageKey,
           child: const HomeScreen(),
+        );
+      },
+    ),
+    // path_provider
+    GoRoute(
+      path: PathProviderScreen.path,
+      name: PathProviderScreen.name,
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const PathProviderScreen(),
         );
       },
     ),

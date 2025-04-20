@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:write_sdcard_sample/screen/doc_man/screen.dart';
 import 'package:write_sdcard_sample/screen/file_picker/screen.dart';
+import 'package:write_sdcard_sample/screen/path_provider/screen.dart';
 import 'package:write_sdcard_sample/shared/app_dialog.dart';
 
 part '_extension_2.dart';
@@ -31,6 +32,10 @@ class HomeScreen extends HookWidget {
               _ListTile(
                 title: DocManScreen.name,
                 pushLocation: DocManScreen.path,
+              ),
+              _ListTile(
+                title: PathProviderScreen.name,
+                pushLocation: PathProviderScreen.path,
               ),
               _ListTile(
                 title: FilePickerScreen.name,
