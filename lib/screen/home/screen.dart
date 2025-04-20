@@ -1,15 +1,9 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_file_saver/flutter_file_saver.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:write_sdcard_sample/screen/doc_man/screen.dart';
 import 'package:write_sdcard_sample/screen/file_picker/screen.dart';
 import 'package:write_sdcard_sample/screen/path_provider/screen.dart';
-import 'package:write_sdcard_sample/shared/app_dialog.dart';
-
-part '_extension_2.dart';
 
 class HomeScreen extends HookWidget {
   const HomeScreen({

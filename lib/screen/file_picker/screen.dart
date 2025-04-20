@@ -42,14 +42,6 @@ class FilePickerScreen extends HookWidget {
                     _selectDirectoryAndCreateFile(context, directoryPath),
                 child: const Text('Select Directory and Create File'),
               ),
-              // ElevatedButton(
-              //   onPressed: () {},
-              //   child: const Text('Read example.txt'),
-              // ),
-              // ElevatedButton(
-              //   onPressed: () {},
-              //   child: const Text('Delete NewFolder'),
-              // ),
             ],
           ),
         ),
