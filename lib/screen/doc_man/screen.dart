@@ -34,7 +34,7 @@ class DocManScreen extends HookWidget {
               const Divider(),
               ElevatedButton(
                 onPressed: () => _selectDirectory(context, documentFile),
-                child: const Text('DocMan'),
+                child: const Text('Select Directory'),
               ),
               ElevatedButton(
                 onPressed: () => _createSubDirAndFile(
@@ -73,9 +73,9 @@ extension on DocManScreen {
     final documentDirectory = await DocMan.pick.directory();
 
     if (documentDirectory == null) {
-      // 保存に失敗
+      // 取得に失敗
       if (!context.mounted) return;
-      await showAppDialog(context, title: '保存失敗', content: '保存に失敗しました');
+      await showAppDialog(context, title: '取得失敗', content: '取得に失敗しました');
     } else {
       // 保存に成功
 
@@ -83,7 +83,7 @@ extension on DocManScreen {
       if (!context.mounted) return;
       await showAppDialog(
         context,
-        title: '保存成功',
+        title: '取得成功',
         content: documentDirectory.uri,
       );
     }
