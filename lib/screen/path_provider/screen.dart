@@ -36,22 +36,10 @@ class PathProviderScreen extends HookWidget {
               ),
               const Divider(),
               ElevatedButton(
-                onPressed: () => _selectDirectory(context, directoryPath),
-                child: const Text('Select Directory'),
-              ),
-              ElevatedButton(
                 onPressed: () =>
                     _selectDirectoryAndCreateFile(context, directoryPath),
                 child: const Text('Select Directory and Create File'),
               ),
-              // ElevatedButton(
-              //   onPressed: () {},
-              //   child: const Text('Read example.txt'),
-              // ),
-              // ElevatedButton(
-              //   onPressed: () {},
-              //   child: const Text('Delete NewFolder'),
-              // ),
             ],
           ),
         ),
@@ -61,7 +49,7 @@ class PathProviderScreen extends HookWidget {
 }
 
 extension on PathProviderScreen {
-  Future<void> _selectDirectory(
+  Future<void> _selectDirectoryAndCreateFile(
     BuildContext context,
     ValueNotifier<String?> directoryPath,
   ) async {
@@ -109,11 +97,6 @@ extension on PathProviderScreen {
       return;
     }
   }
-
-  Future<void> _selectDirectoryAndCreateFile(
-    BuildContext context,
-    ValueNotifier<String?> directoryPath,
-  ) async {}
 }
 
 Future<Directory?> _showSelectDirectoryModal(
@@ -129,7 +112,7 @@ Future<Directory?> _showSelectDirectoryModal(
         itemCount: directories.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(directories[index].path),
+            title: Text(directories[index].toString()),
             onTap: () => Navigator.pop(context, directories[index]),
           );
         },
