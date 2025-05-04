@@ -40,9 +40,25 @@ class FilePickerScreen extends HookWidget {
                 child: const Text('Select Directory'),
               ),
               ElevatedButton(
-                onPressed: () =>
-                    _selectDirectoryAndCreateFile(context, directoryPath),
-                child: const Text('Select Directory and Create File'),
+                onPressed: () => _createSubDirAndFile(
+                  context,
+                  directoryPath.value,
+                ),
+                child: const Text('Create Sub Directory and File'),
+              ),
+              ElevatedButton(
+                onPressed: () => _readExampleFile(
+                  context,
+                  directoryPath.value,
+                ),
+                child: const Text('Read example.txt'),
+              ),
+              ElevatedButton(
+                onPressed: () => _deleteSubDir(
+                  context,
+                  directoryPath,
+                ),
+                child: const Text('Delete NewFolder'),
               ),
             ],
           ),
@@ -58,7 +74,6 @@ extension on FilePickerScreen {
     ValueNotifier<String?> directoryPath,
   ) async {
     final filePicker = FilePicker.platform;
-    // Get the external storage directory
     final path = await filePicker.getDirectoryPath(
       dialogTitle: 'Select Directory',
     );
@@ -83,18 +98,9 @@ extension on FilePickerScreen {
     );
   }
 
-  Future<void> _selectDirectoryAndCreateFile(
-    BuildContext context,
-    ValueNotifier<String?> directoryPath,
-  ) async {
-    final filePicker = FilePicker.platform;
-    // Get the external storage directory
-    final path = await filePicker.getDirectoryPath(
-      dialogTitle: 'Select Directory',
-    );
-
-    if (!context.mounted) return;
+  Future<void> _createSubDirAndFile(BuildContext context, String? path) async {
     if (path == null) {
+      if (!context.mounted) return;
       await showAppDialog(
         context,
         title: 'Error',
@@ -102,32 +108,104 @@ extension on FilePickerScreen {
       );
       return;
     }
-    try {
-      final fixedPath = _fixDuplicatedEndingInPath(path);
-      const localFileSystem = LocalFileSystem();
-      localFileSystem
-          .directory(fixedPath)
-          .childFile('example.txt')
-          .writeAsStringSync('Hello, SD Card!');
-      if (!context.mounted) return;
+    const localFileSystem = LocalFileSystem();
+    final directory = localFileSystem.directory(path);
+    final subDir = directory.childDirectory('NewFolder')
+      ..createSync(recursive: true);
+    final file = subDir.childFile('example.txt')..createSync(recursive: true);
+    final fileExists = await file.exists();
 
-      directoryPath.value = fixedPath;
-      await showAppDialog(
-        context,
-        title: 'Success',
-        content: 'File written successfully!',
-      );
-    } on Exception catch (e) {
-      if (!context.mounted) return;
+    if (!context.mounted) return;
+    if (!fileExists) {
       await showAppDialog(
         context,
         title: 'Error',
-        content: e.toString(),
+        content: 'File already exists',
+      );
+      return;
+    }
+
+    await file.writeAsString('Hello, world!');
+
+    if (!context.mounted) return;
+    await showAppDialog(
+      context,
+      title: 'Success',
+      content: 'File created successfully!',
+    );
+  }
+
+  Future<void> _readExampleFile(BuildContext context, String? path) async {
+    if (path == null) {
+      await showAppDialog(
+        context,
+        title: 'Error',
+        content: 'No file path provided',
+      );
+      return;
+    }
+
+    const localFileSystem = LocalFileSystem();
+    final file = localFileSystem
+        .directory(path)
+        .childDirectory('NewFolder')
+        .childFile('example.txt');
+    final fileExists = await file.exists();
+
+    if (!context.mounted) return;
+    if (!fileExists) {
+      await showAppDialog(
+        context,
+        title: 'Error',
+        content: 'File does not exist',
+      );
+      return;
+    }
+
+    final content = await file.readAsString();
+
+    if (!context.mounted) return;
+    await showAppDialog(
+      context,
+      title: 'File Content',
+      content: content,
+    );
+  }
+
+  Future<void> _deleteSubDir(
+    BuildContext context,
+    ValueNotifier<String?> directoryPath,
+  ) async {
+    if (directoryPath.value == null) {
+      await showAppDialog(
+        context,
+        title: 'Error',
+        content: 'No directory selected',
+      );
+      return;
+    }
+
+    const localFileSystem = LocalFileSystem();
+    final directory = localFileSystem.directory(directoryPath.value);
+    final subDir = directory.childDirectory('NewFolder');
+
+    if (subDir.existsSync()) {
+      subDir.deleteSync(recursive: true);
+      directoryPath.value = null;
+      await showAppDialog(
+        context,
+        title: 'Success',
+        content: 'Sub-directory deleted successfully!',
+      );
+    } else {
+      await showAppDialog(
+        context,
+        title: 'Error',
+        content: 'Sub-directory does not exist',
       );
     }
   }
 
-  /// FilePickerで取得できるパス
   String _fixDuplicatedEndingInPath(String path) {
     final parts = path.split('/').where((p) => p.isNotEmpty).toList();
 
