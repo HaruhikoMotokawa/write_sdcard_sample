@@ -16,7 +16,9 @@ class PathProviderScreen extends HookWidget {
   Widget build(BuildContext context) {
     final directoryPath = useState<String?>(null);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('Path Provider'),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Center(
@@ -36,8 +38,7 @@ class PathProviderScreen extends HookWidget {
               ),
               const Divider(),
               ElevatedButton(
-                onPressed: () =>
-                    _selectDirectoryAndCreateFile(context, directoryPath),
+                onPressed: () => _selectDirectory(context, directoryPath),
                 child: const Text('Select Directory and Create File'),
               ),
             ],
@@ -49,7 +50,7 @@ class PathProviderScreen extends HookWidget {
 }
 
 extension on PathProviderScreen {
-  Future<void> _selectDirectoryAndCreateFile(
+  Future<void> _selectDirectory(
     BuildContext context,
     ValueNotifier<String?> directoryPath,
   ) async {
@@ -74,19 +75,18 @@ extension on PathProviderScreen {
     // 取得できたパスに NewFolder というフォルダを作成して example.txt を作成する
 
     try {
-      final newFile = localFileSystem
+      localFileSystem
           .directory(result.path)
           .childDirectory('NewFolder')
-          .childFile('example.txt')
-        ..writeAsStringSync('Hello, USB!');
+          .createSync(recursive: true);
 
       await showAppDialog(
         context,
         title: 'Success',
         content: 'Directory selected successfully! '
-            '\n path: ${newFile.path}',
+            '\n path: ${result.path}',
       );
-      directoryPath.value = newFile.uri.toString();
+      directoryPath.value = result.path;
     } on Exception catch (e) {
       if (!context.mounted) return;
       await showAppDialog(

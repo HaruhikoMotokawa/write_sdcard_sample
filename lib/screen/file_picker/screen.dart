@@ -14,7 +14,9 @@ class FilePickerScreen extends HookWidget {
   Widget build(BuildContext context) {
     final directoryPath = useState<String?>(null);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('File Picker'),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Center(

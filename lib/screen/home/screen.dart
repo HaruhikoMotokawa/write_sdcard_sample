@@ -14,8 +14,11 @@ class HomeScreen extends HookWidget {
   static const String name = 'home';
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Padding(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      body: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Center(
           child: Column(

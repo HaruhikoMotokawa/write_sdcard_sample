@@ -13,7 +13,9 @@ class DocManScreen extends HookWidget {
   Widget build(BuildContext context) {
     final documentFile = useState<DocumentFile?>(null);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('DocMan'),
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Center(
