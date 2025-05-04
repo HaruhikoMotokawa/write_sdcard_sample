@@ -71,15 +71,18 @@ class PathProviderScreen extends HookWidget {
 }
 
 extension on PathProviderScreen {
+  /// ディレクトリの選択
   Future<void> _selectDirectory(
     BuildContext context,
     ValueNotifier<Directory?> directory,
   ) async {
+    // デバイスが認識している外部ストレージのディレクトリを取得
     final directories = await getExternalStorageDirectories();
     if (directories == null || directories.isEmpty || !context.mounted) {
       return;
     }
 
+    // ディレクトリ配列を渡して選択ダイアログで表示
     final result = await _showSelectDirectoryModal(context, directories);
 
     if (!context.mounted) return;
@@ -92,6 +95,7 @@ extension on PathProviderScreen {
       return;
     }
 
+    // 選択されたディレクトリをuseStateに保存
     directory.value = result;
     await showAppDialog(
       context,
@@ -100,6 +104,7 @@ extension on PathProviderScreen {
     );
   }
 
+  /// サブディレクトリとファイルの作成
   Future<void> _createSubDirAndFile(
     BuildContext context,
     Directory directory,
@@ -114,6 +119,7 @@ extension on PathProviderScreen {
     }
     const localFileSystem = LocalFileSystem();
 
+    // 選択されたディレクトリにサブディレクトリを作成
     final subDir = localFileSystem
         .directory(directory.path)
         .childDirectory('NewFolder')
@@ -126,6 +132,8 @@ extension on PathProviderScreen {
       );
       return;
     }
+
+    // サブディレクトリにファイルを作成
     final file = subDir.childFile('hello.txt')
       ..writeAsStringSync('Hello, World!');
     await showAppDialog(
@@ -135,6 +143,7 @@ extension on PathProviderScreen {
     );
   }
 
+  /// ファイルの読み込み
   Future<void> _readExampleFile(
     BuildContext context,
     Directory directory,
@@ -161,6 +170,7 @@ extension on PathProviderScreen {
     }
   }
 
+  /// サブディレクトリの削除
   Future<void> _deleteSubDir(
     BuildContext context,
     ValueNotifier<Directory?> directory,
@@ -171,6 +181,7 @@ extension on PathProviderScreen {
         .childDirectory('NewFolder');
 
     if (subDir.existsSync()) {
+      // サブディレクトリを削除
       subDir.deleteSync(recursive: true);
       directory.value = null;
       await showAppDialog(

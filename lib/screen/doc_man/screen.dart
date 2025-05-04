@@ -72,6 +72,7 @@ extension on DocManScreen {
     BuildContext context,
     ValueNotifier<DocumentFile?> documentFile,
   ) async {
+    // DocumentFile からディレクトリを取得
     final documentDirectory = await DocMan.pick.directory();
 
     if (documentDirectory == null) {
@@ -80,7 +81,6 @@ extension on DocManScreen {
       await showAppDialog(context, title: '取得失敗', content: '取得に失敗しました');
     } else {
       // 保存に成功
-
       documentFile.value = documentDirectory;
       if (!context.mounted) return;
       await showAppDialog(
@@ -91,8 +91,8 @@ extension on DocManScreen {
     }
   }
 
-  Future<void> _createSubDirAndFile(BuildContext context, String path) async {
-    if (path.isEmpty) {
+  Future<void> _createSubDirAndFile(BuildContext context, String uri) async {
+    if (uri.isEmpty) {
       if (!context.mounted) return;
       await showAppDialog(context, title: 'エラー', content: '保存先が選択されていません');
       return;
@@ -100,13 +100,15 @@ extension on DocManScreen {
 
     try {
       // DocumentFile から既存ディレクトリを取得
-      final parentDir = await DocumentFile.fromUri(path);
+      final parentDir = await DocumentFile.fromUri(uri);
+
+      if (!context.mounted) return;
       if (parentDir == null || !parentDir.isDirectory) {
-        if (!context.mounted) return;
         await showAppDialog(context, title: 'エラー', content: '有効なディレクトリではありません');
         return;
       }
 
+      // NewFolder を作成
       final newDir = await parentDir.createDirectory('NewFolder');
 
       if (newDir == null) {
@@ -114,8 +116,8 @@ extension on DocManScreen {
         await showAppDialog(context, title: '作成失敗', content: 'フォルダを作成できませんでした');
         return;
       }
-      // New: create example.txt inside the new directory
 
+      // example.txt を作成
       await newDir.createFile(
         name: 'example.txt',
         content: 'Hello, i write text from DocMan',
@@ -134,15 +136,15 @@ extension on DocManScreen {
     }
   }
 
-  Future<void> _readExampleFile(BuildContext context, String path) async {
-    if (path.isEmpty) {
+  Future<void> _readExampleFile(BuildContext context, String uri) async {
+    if (uri.isEmpty) {
       if (!context.mounted) return;
       await showAppDialog(context, title: 'エラー', content: '保存先が選択されていません');
       return;
     }
 
     try {
-      final parentDir = await DocumentFile.fromUri(path);
+      final parentDir = await DocumentFile.fromUri(uri);
       if (parentDir == null || !parentDir.isDirectory) {
         if (!context.mounted) return;
         await showAppDialog(context, title: 'エラー', content: '無効なディレクトリです');
