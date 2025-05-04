@@ -14,7 +14,7 @@ class PathProviderScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final directoryPath = useState<String?>(null);
+    final directory = useState<Directory?>(null);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Path Provider'),
@@ -32,14 +32,35 @@ class PathProviderScreen extends HookWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               Text(
-                directoryPath.value == null
+                directory.value == null
                     ? 'No directory selected'
-                    : directoryPath.value.toString(),
+                    : directory.value.toString(),
               ),
               const Divider(),
               ElevatedButton(
-                onPressed: () => _selectDirectory(context, directoryPath),
+                onPressed: () => _selectDirectory(context, directory),
                 child: const Text('Select Directory and Create File'),
+              ),
+              ElevatedButton(
+                onPressed: () => _createSubDirAndFile(
+                  context,
+                  directory.value ?? Directory(''),
+                ),
+                child: const Text('Create Sub Directory and File'),
+              ),
+              ElevatedButton(
+                onPressed: () => _readExampleFile(
+                  context,
+                  directory.value ?? Directory(''),
+                ),
+                child: const Text('Read example.txt'),
+              ),
+              ElevatedButton(
+                onPressed: () => _deleteSubDir(
+                  context,
+                  directory,
+                ),
+                child: const Text('Delete NewFolder'),
               ),
             ],
           ),
@@ -52,7 +73,7 @@ class PathProviderScreen extends HookWidget {
 extension on PathProviderScreen {
   Future<void> _selectDirectory(
     BuildContext context,
-    ValueNotifier<String?> directoryPath,
+    ValueNotifier<Directory?> directory,
   ) async {
     final directories = await getExternalStorageDirectories();
     if (directories == null || directories.isEmpty || !context.mounted) {
@@ -71,30 +92,98 @@ extension on PathProviderScreen {
       return;
     }
 
-    const localFileSystem = LocalFileSystem();
-    // 取得できたパスに NewFolder というフォルダを作成して example.txt を作成する
+    directory.value = result;
+    await showAppDialog(
+      context,
+      title: 'Directory Selection',
+      content: 'Selected directory: ${result.path}',
+    );
+  }
 
-    try {
-      localFileSystem
-          .directory(result.path)
-          .childDirectory('NewFolder')
-          .createSync(recursive: true);
-
-      await showAppDialog(
-        context,
-        title: 'Success',
-        content: 'Directory selected successfully! '
-            '\n path: ${result.path}',
-      );
-      directoryPath.value = result.path;
-    } on Exception catch (e) {
-      if (!context.mounted) return;
+  Future<void> _createSubDirAndFile(
+    BuildContext context,
+    Directory directory,
+  ) async {
+    if (directory.path.isEmpty) {
       await showAppDialog(
         context,
         title: 'Error',
-        content: 'Failed to create file: $e',
+        content: 'No directory selected.',
       );
       return;
+    }
+    const localFileSystem = LocalFileSystem();
+
+    final subDir = localFileSystem
+        .directory(directory.path)
+        .childDirectory('NewFolder')
+      ..createSync(recursive: true);
+    if (!subDir.existsSync()) {
+      await showAppDialog(
+        context,
+        title: 'Directory Creation',
+        content: 'Failed to create directory.',
+      );
+      return;
+    }
+    final file = subDir.childFile('hello.txt')
+      ..writeAsStringSync('Hello, World!');
+    await showAppDialog(
+      context,
+      title: 'File Creation',
+      content: 'File created at: ${file.path}',
+    );
+  }
+
+  Future<void> _readExampleFile(
+    BuildContext context,
+    Directory directory,
+  ) async {
+    const localFileSystem = LocalFileSystem();
+    final file = localFileSystem
+        .directory(directory.path)
+        .childDirectory('NewFolder')
+        .childFile('hello.txt');
+
+    if (file.existsSync()) {
+      final content = file.readAsStringSync();
+      await showAppDialog(
+        context,
+        title: 'File Read',
+        content: 'File content: $content',
+      );
+    } else {
+      await showAppDialog(
+        context,
+        title: 'File Not Found',
+        content: 'The file does not exist.',
+      );
+    }
+  }
+
+  Future<void> _deleteSubDir(
+    BuildContext context,
+    ValueNotifier<Directory?> directory,
+  ) async {
+    const localFileSystem = LocalFileSystem();
+    final subDir = localFileSystem
+        .directory(directory.value?.path ?? '')
+        .childDirectory('NewFolder');
+
+    if (subDir.existsSync()) {
+      subDir.deleteSync(recursive: true);
+      directory.value = null;
+      await showAppDialog(
+        context,
+        title: 'Directory Deletion',
+        content: 'Directory deleted successfully.',
+      );
+    } else {
+      await showAppDialog(
+        context,
+        title: 'Directory Not Found',
+        content: 'The directory does not exist.',
+      );
     }
   }
 }
